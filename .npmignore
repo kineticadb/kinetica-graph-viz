@@ -27,6 +27,7 @@ config
 CHANGELOG.md
 .eslintignore
 .eslintrc.json
+.gitignore
 webpack.config.js
 webpack.config.demo.js
 babel.config.js

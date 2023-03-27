@@ -1,6 +1,6 @@
 /*!
  * 
- *   @kinetica/kinetica-graph-viz v1.0.1
+ *   @kinetica/kinetica-graph-viz v1.0.3
  *   git+https://github.com/kineticadb/kinetica-graph-viz.git
  *
  *   Copyright (c) Pat Khunachak (https://github.com/kineticadb) and project contributors.
