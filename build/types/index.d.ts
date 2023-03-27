@@ -9,8 +9,10 @@ declare class KineticaGraphViz {
     private _dataTable;
     private _dataTableColumns;
     private _dataGroup;
+    private _rawNodes;
+    private _rawEdges;
     private _limit;
-    constructor(elemId: string);
+    constructor(elemId: string, configOptions?: any);
     graph: (fn: any) => KineticaGraphViz;
     connect: (url: string, options: any) => KineticaGraphViz;
     limit: (limit: number) => KineticaGraphViz;
@@ -19,6 +21,7 @@ declare class KineticaGraphViz {
     edges: (table: string, columns: string[]) => KineticaGraphViz;
     private _loadEdges;
     data: (table: string, columns: string[], group?: string) => this;
+    raw: (data: any) => this;
     private _loadData;
     enableBloom: () => this;
     render: () => Promise<void>;

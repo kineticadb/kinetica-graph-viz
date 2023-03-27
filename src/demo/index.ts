@@ -12,14 +12,24 @@ const elem = document.createElement("div");
 elem.id = "my_graph";
 body[0]?.appendChild(elem);
 
-const kgraph = new KineticaGraphViz("my_graph");
+const kgraph = new KineticaGraphViz("my_graph", {});
+
+const raw = {
+  nodes: [{ id: "1" }, { id: "2" }, { id: "3" }, { id: "4" }],
+  edges: [
+    { source: "1", target: "2" },
+    { source: "2", target: "3" },
+    { source: "2", target: "4" },
+  ],
+};
 
 kgraph
   .connect("http://127.0.0.1:9191", {
     username: "admin",
     password: "password",
   })
-  .data("test_graph.multi_out_table", ["EDGE_NODE1_ID", "EDGE_NODE2_ID"])
+  // .data("ki_home.kgraph_query", ["QUERY_NODE1_NAME", "QUERY_NODE2_NAME"])
+  .raw(raw)
   .limit(1000)
   .graph((graph: any) => {
     graph

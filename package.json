@@ -1,6 +1,6 @@
 {
   "name": "@kinetica/kinetica-graph-viz",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Kinetica DB library for graph visualization",
   "main": "build/index.js",
   "types": "build/types/index.d.ts",
@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/kineticadb/kinetica-graph-viz"
+    "url": "git+https://github.com/kineticadb/kinetica-graph-viz.git"
   },
   "author": "Pat Khunachak <pkhunachak@kinetica.com> (https://github.com/kineticadb)",
   "license": "MIT",

@@ -14,11 +14,13 @@ class KineticaGraphViz {
   private _dataTable: string;
   private _dataTableColumns: string[];
   private _dataGroup: string;
+  private _rawNodes: any[];
+  private _rawEdges: any[];
   private _limit = 1000;
 
-  constructor(elemId: string) {
+  constructor(elemId: string, configOptions: any = {}) {
     this._elem = document.getElementById(elemId);
-    this._graph = ForceGraph3D()(this._elem);
+    this._graph = ForceGraph3D(configOptions)(this._elem);
 
     const resizeCanvas = () => {
       this._graph.width(this._elem.clientWidth);
@@ -126,6 +128,13 @@ class KineticaGraphViz {
     return this;
   };
 
+  raw = (data: any) => {
+    const { nodes = [], edges = [] } = data;
+    this._rawNodes = nodes;
+    this._rawEdges = edges;
+    return this;
+  };
+
   private _loadData = async (): Promise<any> => {
     return new Promise((resolve, reject) => {
       const nodes_idx = new Set();
@@ -192,7 +201,10 @@ class KineticaGraphViz {
     let nodes: any[] = [];
     let links: any[] = [];
 
-    if (this._nodesTable && this._edgesTable) {
+    if (this._rawNodes && this._rawEdges) {
+      nodes = this._rawNodes;
+      links = this._rawEdges;
+    } else if (this._nodesTable && this._edgesTable) {
       nodes = await this._loadNodes();
       links = await this._loadEdges();
     } else if (this._dataTable) {
