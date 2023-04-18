@@ -13,7 +13,6 @@ class KineticaGraphViz {
   private _edgesTableColumns: string[];
   private _dataTable: string;
   private _dataTableColumns: string[];
-  private _dataGroup: string;
   private _rawNodes: any[];
   private _rawEdges: any[];
   private _limit = 1000;
@@ -81,6 +80,14 @@ class KineticaGraphViz {
                   name: resp.data.column_2[i],
                 });
               }
+            } else if (this._nodesTableColumns.length == 3) {
+              for (let i = 0; i < resp.total_number_of_records; i++) {
+                nodes.push({
+                  id: resp.data.column_1[i],
+                  name: resp.data.column_2[i],
+                  label: resp.data.column_3[i],
+                });
+              }
             }
             resolve(nodes);
           }
@@ -108,11 +115,21 @@ class KineticaGraphViz {
           if (error) {
             reject(error);
           } else {
-            for (let i = 0; i < resp.total_number_of_records; i++) {
-              edges.push({
-                source: resp.data.column_1[i],
-                target: resp.data.column_2[i],
-              });
+            if (this._edgesTableColumns.length == 2) {
+              for (let i = 0; i < resp.total_number_of_records; i++) {
+                edges.push({
+                  source: resp.data.column_1[i],
+                  target: resp.data.column_2[i],
+                });
+              }
+            } else if (this._edgesTableColumns.length == 3) {
+              for (let i = 0; i < resp.total_number_of_records; i++) {
+                edges.push({
+                  source: resp.data.column_1[i],
+                  target: resp.data.column_2[i],
+                  label: resp.data.column_3[i],
+                });
+              }
             }
             resolve(edges);
           }
@@ -121,10 +138,9 @@ class KineticaGraphViz {
     });
   };
 
-  data = (table: string, columns: string[], group?: string) => {
+  data = (table: string, columns: string[]) => {
     this._dataTable = table;
     this._dataTableColumns = columns;
-    this._dataGroup = group;
     return this;
   };
 
@@ -140,17 +156,13 @@ class KineticaGraphViz {
       const nodes_idx = new Set();
       const links: any[] = [];
 
-      if (this._dataTableColumns.length != 2) {
+      if (this._dataTableColumns.length < 2) {
         console.error("Invalid number of column names");
       }
 
-      const columns = this._dataGroup
-        ? [...this._dataTableColumns, this._dataGroup]
-        : this._dataTableColumns;
-
       this._gpudb.get_records_by_column(
         this._dataTable,
-        columns,
+        this._dataTableColumns,
         0,
         this._limit,
         {},
@@ -161,16 +173,16 @@ class KineticaGraphViz {
             for (let i = 0; i < resp.data.column_1.length; i++) {
               nodes_idx.add(resp.data.column_1[i]);
               nodes_idx.add(resp.data.column_2[i]);
-              if (this._dataGroup) {
+              if (this._dataTableColumns.length == 2) {
                 links.push({
                   source: resp.data.column_1[i],
                   target: resp.data.column_2[i],
-                  group: resp.data.column_3[i],
                 });
-              } else {
+              } else if (this._dataTableColumns.length == 3) {
                 links.push({
                   source: resp.data.column_1[i],
                   target: resp.data.column_2[i],
+                  label: resp.data.column_3[i],
                 });
               }
             }

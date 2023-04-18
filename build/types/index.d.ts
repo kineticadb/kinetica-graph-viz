@@ -8,7 +8,6 @@ declare class KineticaGraphViz {
     private _edgesTableColumns;
     private _dataTable;
     private _dataTableColumns;
-    private _dataGroup;
     private _rawNodes;
     private _rawEdges;
     private _limit;
@@ -20,7 +19,7 @@ declare class KineticaGraphViz {
     private _loadNodes;
     edges: (table: string, columns: string[]) => KineticaGraphViz;
     private _loadEdges;
-    data: (table: string, columns: string[], group?: string) => this;
+    data: (table: string, columns: string[]) => this;
     raw: (data: any) => this;
     private _loadData;
     enableBloom: () => this;
