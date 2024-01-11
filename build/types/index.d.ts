@@ -16,6 +16,7 @@ declare class KineticaGraphViz {
     connect: (url: string, options: any) => KineticaGraphViz;
     limit: (limit: number) => KineticaGraphViz;
     nodes: (table: string, columns: string[]) => KineticaGraphViz;
+    private _addMissingNodes;
     private _loadNodes;
     edges: (table: string, columns: string[]) => KineticaGraphViz;
     private _loadEdges;

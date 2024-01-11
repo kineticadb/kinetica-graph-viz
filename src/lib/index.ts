@@ -54,6 +54,26 @@ class KineticaGraphViz {
     return this;
   };
 
+  private _addMissingNodes = (nodes: any[], edges: any[]): any[] => {
+    const missing = edges.reduce((acc: any[], cur: any) => {
+      const { source, target } = cur;
+      if (
+        !nodes.some((node) => node.id === source) &&
+        !acc.some((node) => node.id === source)
+      ) {
+        acc.push({ id: source });
+      }
+      if (
+        !nodes.some((node) => node.id === target) &&
+        !acc.some((node) => node.id === target)
+      ) {
+        acc.push({ id: target });
+      }
+      return acc;
+    }, []);
+    return nodes.concat(missing);
+  };
+
   private _loadNodes = async (): Promise<any> => {
     return new Promise((resolve, reject) => {
       this._gpudb.get_records_by_column(
@@ -225,7 +245,9 @@ class KineticaGraphViz {
       links = dataLinks;
     }
 
-    this._graph.graphData({ nodes, links }).resumeAnimation();
+    this._graph
+      .graphData({ nodes: this._addMissingNodes(nodes, links), links })
+      .resumeAnimation();
   };
 }
 
