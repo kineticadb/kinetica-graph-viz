@@ -31,6 +31,8 @@ class KineticaGraphViz {
     resizeCanvas();
 
     this._graph.pauseAnimation();
+    this._graph.linkCurvature("curvature");
+    this._graph.linkCurveRotation("rotation");
   }
 
   graph = (fn: any): KineticaGraphViz => {
@@ -58,16 +60,16 @@ class KineticaGraphViz {
     const missing = edges.reduce((acc: any[], cur: any) => {
       const { source, target } = cur;
       if (
-        !nodes.some((node) => node.id === source) &&
-        !acc.some((node) => node.id === source)
+        !nodes.some((node) => node.id === source || node.id === source.id) &&
+        !acc.some((node) => node.id === source || node.id === source.id)
       ) {
-        acc.push({ id: source });
+        acc.push({ id: source.id ?? source });
       }
       if (
-        !nodes.some((node) => node.id === target) &&
-        !acc.some((node) => node.id === target)
+        !nodes.some((node) => node.id === target || node.id === target.id) &&
+        !acc.some((node) => node.id === target || node.id === target.id)
       ) {
-        acc.push({ id: target });
+        acc.push({ id: target.id ?? target });
       }
       return acc;
     }, []);
@@ -88,20 +90,20 @@ class KineticaGraphViz {
             reject(error);
           } else {
             if (this._nodesTableColumns.length == 1) {
-              for (let i = 0; i < resp.total_number_of_records; i++) {
+              for (let i = 0; i < resp.data.column_1.length; i++) {
                 nodes.push({
                   id: resp.data.column_1[i],
                 });
               }
             } else if (this._nodesTableColumns.length == 2) {
-              for (let i = 0; i < resp.total_number_of_records; i++) {
+              for (let i = 0; i < resp.data.column_1.length; i++) {
                 nodes.push({
                   id: resp.data.column_1[i],
                   name: resp.data.column_2[i],
                 });
               }
             } else if (this._nodesTableColumns.length == 3) {
-              for (let i = 0; i < resp.total_number_of_records; i++) {
+              for (let i = 0; i < resp.data.column_1.length; i++) {
                 nodes.push({
                   id: resp.data.column_1[i],
                   name: resp.data.column_2[i],
@@ -136,14 +138,14 @@ class KineticaGraphViz {
             reject(error);
           } else {
             if (this._edgesTableColumns.length == 2) {
-              for (let i = 0; i < resp.total_number_of_records; i++) {
+              for (let i = 0; i < resp.data.column_1.length; i++) {
                 edges.push({
                   source: resp.data.column_1[i],
                   target: resp.data.column_2[i],
                 });
               }
             } else if (this._edgesTableColumns.length == 3) {
-              for (let i = 0; i < resp.total_number_of_records; i++) {
+              for (let i = 0; i < resp.data.column_1.length; i++) {
                 edges.push({
                   source: resp.data.column_1[i],
                   target: resp.data.column_2[i],
@@ -245,9 +247,8 @@ class KineticaGraphViz {
       links = dataLinks;
     }
 
-    this._graph
-      .graphData({ nodes: this._addMissingNodes(nodes, links), links })
-      .resumeAnimation();
+    const fullNodes = this._addMissingNodes(nodes, links);
+    this._graph.graphData({ nodes: fullNodes, links }).resumeAnimation();
   };
 }
 
