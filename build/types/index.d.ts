@@ -11,10 +11,12 @@ declare class KineticaGraphViz {
     private _rawNodes;
     private _rawEdges;
     private _limit;
+    private _curvature;
     constructor(elemId: string, configOptions?: any);
     graph: (fn: any) => KineticaGraphViz;
     connect: (url: string, options: any) => KineticaGraphViz;
     limit: (limit: number) => KineticaGraphViz;
+    curvature: (curvature: number) => KineticaGraphViz;
     nodes: (table: string, columns: string[]) => KineticaGraphViz;
     private _addMissingNodes;
     private _loadNodes;

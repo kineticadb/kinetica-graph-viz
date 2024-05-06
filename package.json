@@ -1,6 +1,6 @@
 {
   "name": "@kinetica/kinetica-graph-viz",
-  "version": "1.0.26",
+  "version": "1.0.27",
   "description": "Kinetica DB library for graph visualization",
   "main": "build/index.js",
   "types": "build/types/index.d.ts",

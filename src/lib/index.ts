@@ -2,6 +2,7 @@ import ForceGraph3D from "3d-force-graph";
 import * as THREE from "three";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass";
 import GPUdb from "../gpudb/GPUdb";
+import { reorder, applyCurvature } from "./helpers";
 
 class KineticaGraphViz {
   private _gpudb: GPUdb;
@@ -16,6 +17,7 @@ class KineticaGraphViz {
   private _rawNodes: any[];
   private _rawEdges: any[];
   private _limit = 1000;
+  private _curvature = 1.0;
 
   constructor(elemId: string, configOptions: any = {}) {
     this._elem = document.getElementById(elemId);
@@ -47,6 +49,11 @@ class KineticaGraphViz {
 
   limit = (limit: number): KineticaGraphViz => {
     this._limit = limit;
+    return this;
+  };
+
+  curvature = (curvature: number): KineticaGraphViz => {
+    this._curvature = curvature;
     return this;
   };
 
@@ -247,8 +254,15 @@ class KineticaGraphViz {
       links = dataLinks;
     }
 
+    console.log(applyCurvature(reorder(links), this._curvature));
+
     const fullNodes = this._addMissingNodes(nodes, links);
-    this._graph.graphData({ nodes: fullNodes, links }).resumeAnimation();
+    this._graph
+      .graphData({
+        nodes: fullNodes,
+        links: applyCurvature(reorder(links), this._curvature),
+      })
+      .resumeAnimation();
   };
 }
 
