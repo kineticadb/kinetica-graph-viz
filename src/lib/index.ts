@@ -254,8 +254,6 @@ class KineticaGraphViz {
       links = dataLinks;
     }
 
-    console.log(applyCurvature(reorder(links), this._curvature));
-
     const fullNodes = this._addMissingNodes(nodes, links);
     this._graph
       .graphData({
