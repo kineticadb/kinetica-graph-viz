@@ -5,10 +5,11 @@ export const getEdgeKey = (edge: any) => {
 
 export const reorder = (edges: any[]) => {
   return edges.map((edge: any) => {
-    const { source, target } = edge;
+    const { source, target, ...rest } = edge;
     return source > target
       ? edge
       : {
+          ...rest,
           source: target,
           target: source,
         };
