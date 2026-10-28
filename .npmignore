@@ -32,3 +32,4 @@ webpack.config.js
 webpack.config.demo.js
 babel.config.js
 tsconfig.json
+vitest.config.mjs

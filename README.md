@@ -63,3 +63,26 @@ kGraphViz
   })
   .render();
 ```
+
+### Updating and cleaning up
+
+`nodes()`/`edges()`, `data()` and `raw()` each replace the previously set data
+source, and calling `render()` again redraws with the latest one. If a newer
+`render()` starts before an earlier load finishes, the earlier result (or
+error) is discarded. Node and edge tables are loaded in parallel.
+
+Call `destroy()` when the graph is removed from the page. It stops the
+animation, removes the graph's elements and its window resize listener, and
+releases its WebGL context. Later calls on the instance do nothing.
+
+```javascript
+kGraphViz.destroy();
+```
+
+## Development
+
+```
+npm install
+npm test        # unit tests (Vitest)
+npm run build
+```

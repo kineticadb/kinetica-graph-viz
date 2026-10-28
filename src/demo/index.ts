@@ -45,7 +45,7 @@ kgraph
   .graph((graph: any) => {
     graph
       .cooldownTicks(50)
-      .backgroundColor("#ffffff")
+      .backgroundColor("#00000000")
       .nodeVal(() => Math.random() * 15)
       .nodeLabel((node: any) => `Node ${node.id}`)
       .nodeColor(() => (Math.random() > 0.5 ? "#4c00b0" : "#FF00FF"))

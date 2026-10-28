@@ -16,29 +16,36 @@ class KineticaGraphViz {
   private _dataTableColumns: string[];
   private _rawNodes: any[];
   private _rawEdges: any[];
+  // The data source set most recently; render() draws only this one.
+  private _source: "raw" | "tables" | "data";
   private _limit = 1000;
   private _curvature = 1.0;
+  // Identifies the latest render() call; older loads are discarded.
+  private _renderId = 0;
+  private _destroyed = false;
 
   constructor(elemId: string, configOptions: any = {}) {
     this._elem = document.getElementById(elemId);
     this._graph = ForceGraph3D(configOptions)(this._elem);
 
-    const resizeCanvas = () => {
-      this._graph.width(this._elem.clientWidth);
-      this._graph.height(this._elem.clientHeight);
-    };
+    window.addEventListener("resize", this._resizeCanvas);
 
-    window.addEventListener("resize", resizeCanvas);
-
-    resizeCanvas();
+    this._resizeCanvas();
 
     this._graph.pauseAnimation();
     this._graph.linkCurvature("curvature");
     this._graph.linkCurveRotation("rotation");
   }
 
+  private _resizeCanvas = () => {
+    this._graph.width(this._elem.clientWidth);
+    this._graph.height(this._elem.clientHeight);
+  };
+
   graph = (fn: any): KineticaGraphViz => {
-    fn(this._graph);
+    if (!this._destroyed) {
+      fn(this._graph);
+    }
     return this;
   };
 
@@ -58,6 +65,7 @@ class KineticaGraphViz {
   };
 
   nodes = (table: string, columns: string[]): KineticaGraphViz => {
+    this._source = "tables";
     this._nodesTable = table;
     this._nodesTableColumns = columns;
     return this;
@@ -126,6 +134,7 @@ class KineticaGraphViz {
   };
 
   edges = (table: string, columns: string[]): KineticaGraphViz => {
+    this._source = "tables";
     this._edgesTable = table;
     this._edgesTableColumns = columns;
     return this;
@@ -168,6 +177,7 @@ class KineticaGraphViz {
   };
 
   data = (table: string, columns: string[]) => {
+    this._source = "data";
     this._dataTable = table;
     this._dataTableColumns = columns;
     return this;
@@ -175,6 +185,7 @@ class KineticaGraphViz {
 
   raw = (data: any) => {
     const { nodes = [], edges = [] } = data;
+    this._source = "raw";
     this._rawNodes = nodes;
     this._rawEdges = edges;
     return this;
@@ -186,7 +197,8 @@ class KineticaGraphViz {
       const links: any[] = [];
 
       if (this._dataTableColumns.length < 2) {
-        console.error("Invalid number of column names");
+        reject(new Error("data() needs at least 2 columns"));
+        return;
       }
 
       this._gpudb.get_records_by_column(
@@ -228,6 +240,9 @@ class KineticaGraphViz {
   };
 
   enableBloom = () => {
+    if (this._destroyed) {
+      return this;
+    }
     const bloomPass = new UnrealBloomPass(
       new THREE.Vector2(this._elem.clientWidth, this._elem.clientHeight),
       3,
@@ -238,23 +253,62 @@ class KineticaGraphViz {
     return this;
   };
 
-  render = async () => {
-    let nodes: any[] = [];
-    let links: any[] = [];
+  // Stops rendering, removes the graph's elements and listeners, and frees
+  // its WebGL context. The instance cannot be used again afterwards.
+  destroy = () => {
+    if (this._destroyed) {
+      return;
+    }
+    this._destroyed = true;
+    window.removeEventListener("resize", this._resizeCanvas);
+    this._graph._destructor();
+    this._graph.controls().dispose();
+    this._graph.postProcessingComposer().dispose();
+    const renderer = this._graph.renderer();
+    renderer.dispose();
+    renderer.forceContextLoss();
+    this._elem.replaceChildren();
+  };
 
-    if (this._rawNodes && this._rawEdges) {
-      nodes = this._rawNodes;
-      links = this._rawEdges;
-    } else if (this._nodesTable && this._edgesTable) {
-      nodes = await this._loadNodes();
-      links = await this._loadEdges();
-    } else if (this._dataTable) {
-      const { nodes: dataNodes, links: dataLinks } = await this._loadData();
-      nodes = dataNodes;
-      links = dataLinks;
+  private _load = async (): Promise<{ nodes: any[]; links: any[] }> => {
+    if (this._source === "raw") {
+      return { nodes: this._rawNodes, links: this._rawEdges };
+    }
+    if (this._source === "tables" && this._nodesTable && this._edgesTable) {
+      const [nodes, links] = await Promise.all([
+        this._loadNodes(),
+        this._loadEdges(),
+      ]);
+      return { nodes, links };
+    }
+    if (this._source === "data") {
+      return this._loadData();
+    }
+    return { nodes: [], links: [] };
+  };
+
+  render = async () => {
+    if (this._destroyed) {
+      return;
+    }
+    const renderId = ++this._renderId;
+    // False once a newer render() starts or the graph is destroyed.
+    const isCurrent = () => renderId === this._renderId && !this._destroyed;
+
+    let data;
+    try {
+      data = await this._load();
+    } catch (error) {
+      if (isCurrent()) {
+        throw error;
+      }
+      return;
+    }
+    if (!isCurrent()) {
+      return;
     }
 
-    console.log(applyCurvature(reorder(links), this._curvature));
+    const { nodes, links } = data;
 
     const fullNodes = this._addMissingNodes(nodes, links);
     this._graph

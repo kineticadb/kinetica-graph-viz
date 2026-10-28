@@ -10,9 +10,13 @@ declare class KineticaGraphViz {
     private _dataTableColumns;
     private _rawNodes;
     private _rawEdges;
+    private _source;
     private _limit;
     private _curvature;
+    private _renderId;
+    private _destroyed;
     constructor(elemId: string, configOptions?: any);
+    private _resizeCanvas;
     graph: (fn: any) => KineticaGraphViz;
     connect: (url: string, options: any) => KineticaGraphViz;
     limit: (limit: number) => KineticaGraphViz;
@@ -26,6 +30,8 @@ declare class KineticaGraphViz {
     raw: (data: any) => this;
     private _loadData;
     enableBloom: () => this;
+    destroy: () => void;
+    private _load;
     render: () => Promise<void>;
 }
 export default KineticaGraphViz;
