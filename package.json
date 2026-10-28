@@ -1,6 +1,6 @@
 {
   "name": "@kinetica/kinetica-graph-viz",
-  "version": "1.0.29",
+  "version": "1.0.30",
   "description": "Kinetica DB library for graph visualization",
   "main": "build/index.js",
   "types": "build/types/index.d.ts",
@@ -44,7 +44,7 @@
     "babel-loader": "^9.1.2",
     "babel-preset-minify": "^0.5.2",
     "css-loader": "^6.7.3",
-    "css-minimizer-webpack-plugin": "^4.2.2",
+    "css-minimizer-webpack-plugin": "^8.0.0",
     "eslint": "^7.32.0",
     "file-loader": "^6.2.0",
     "html-webpack-plugin": "^5.5.0",
@@ -55,6 +55,13 @@
     "url-loader": "^4.1.1",
     "webpack": "^5.75.0",
     "webpack-cli": "^5.0.1",
-    "webpack-dev-server": "4.11.1"
+    "webpack-dev-server": "^6.1.0"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": ">=22.15.0",
+      "onFail": "error"
+    }
   }
 }
